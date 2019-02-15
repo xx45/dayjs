@@ -41,11 +41,32 @@ const prettyUnit = (u) => {
 
 const isUndefined = s => s === undefined
 
+const fromString = (s) => {
+  if (!s) return null
+  const reg = s.match(C.REGEX_PARSE)
+  if (!(/.*[^Z]$/i.test(s)) || !reg) return null
+  // Treat this condition as an invalid date
+  if (!reg[2] || reg[2] > 12 || reg[2] < 1) return new Date(NaN)
+  let daysPerMonth = C.DAYS_PER_MONTH[reg[2] - 1]
+  if (Number(reg[2]) === 2 // If is february
+    && (((reg[1] % 4 === 0) && (reg[1] % 100 !== 0)) || (reg[1] % 400 === 0))) daysPerMonth += 1
+  // Treat this condition as an invalid date
+  if ((!!reg[3] && (reg[3] > daysPerMonth || reg[3] < 1))
+    || (!!reg[5] && (reg[5] > 23 || reg[5] < 0))
+    || (!!reg[6] && (reg[6] > 59 || reg[6] < 0))
+    || (!!reg[7] && (reg[7] > 59 || reg[7] < 0))) return new Date(NaN)
+  return new Date(
+    reg[1], reg[2] - 1, reg[3] || 1,
+    reg[5] || 0, reg[6] || 0, reg[7] || 0, reg[8] || 0
+  )
+}
+
 export default {
   padStart,
   padZoneStr,
   monthDiff,
   absFloor,
   prettyUnit,
-  isUndefined
+  isUndefined,
+  fromString
 }

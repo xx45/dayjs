@@ -46,19 +46,14 @@ Utils.isDayjs = isDayjs
 Utils.wrapper = wrapper
 
 const parseDate = (date) => {
-  let reg
   if (date === null) return new Date(NaN) // Treat null as an invalid date
   if (Utils.isUndefined(date)) return new Date()
-  if (date instanceof Date) return date
-  // eslint-disable-next-line no-cond-assign
-  if ((typeof date === 'string')
-    && (/.*[^Z]$/i.test(date)) // looking for a better way
-    && (reg = date.match(C.REGEX_PARSE))) {
-    // 2018-08-08 or 20180808
-    return new Date(
-      reg[1], reg[2] - 1, reg[3] || 1,
-      reg[4] || 0, reg[5] || 0, reg[6] || 0, reg[7] || 0
-    )
+  if ((typeof date === 'string')) {
+    let dateFromString
+    // eslint-disable-next-line no-cond-assign
+    if (dateFromString = Utils.fromString(date)) {
+      return dateFromString
+    }
   }
   return new Date(date) // timestamp
 }

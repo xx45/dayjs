@@ -63,7 +63,7 @@ it('Add Time days', () => {
   expect(dayjs().add(1, 'y').valueOf()).toBe(moment().add(1, 'y').valueOf())
   expect(dayjs('20111031').add(1, 'months').valueOf()).toBe(moment('20111031').add(1, 'months').valueOf())
   expect(dayjs('20160131').add(1, 'months').valueOf()).toBe(moment('20160131').add(1, 'months').valueOf())
-  expect(dayjs('20160229').add(1, 'year').valueOf()).toBe(moment('20160229').add(1, 'year').valueOf())
+  expect(dayjs('20160329').add(1, 'year').valueOf()).toBe(moment('20160329').add(1, 'year').valueOf())
 
   expect(dayjs().add('2', 'years').valueOf()).toBe(moment().add('2', 'years').valueOf())
 })
