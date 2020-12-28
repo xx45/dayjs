@@ -1,7 +1,9 @@
 // Arabic [ar]
 import dayjs from 'dayjs'
 
-const months = 'يناير_فبراير_مارس_أبريل_مايو_يونيو_يوليو_أغسطس_سبتمبر_أكتوبر_نوفمبر_ديسمبر'.split('_')
+const months = 'يناير_فبراير_مارس_أبريل_مايو_يونيو_يوليو_أغسطس_سبتمبر_أكتوبر_نوفمبر_ديسمبر'.split(
+  '_'
+)
 
 const locale = {
   name: 'ar',
@@ -26,7 +28,14 @@ const locale = {
     y: 'عام واحد',
     yy: '%d أعوام'
   },
-  ordinal: n => n,
+  meridiem: (hour, minute, isLowercase) => {
+    if (isLowercase) {
+      return hour > 12 ? 'م' : 'ص'
+    } else {
+      return hour > 12 ? 'مساءًا' : 'صباحًا'
+    }
+  },
+  ordinal: (n) => n,
   formats: {
     LT: 'HH:mm',
     LTS: 'HH:mm:ss',
