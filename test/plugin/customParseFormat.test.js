@@ -310,6 +310,51 @@ describe('Strict mode', () => {
     expect(dayjs(input, format, 'zh-cn').isValid()).toBe(true)
     expect(dayjs(input, format, 'zh-cn', true).isValid()).toBe(false)
   })
+  it('with timezone (normal format) and with milliseconds', () => {
+    const format = 'YYYY-MM-DDTHH:mm:ss.SSSZ'
+
+    const firstInput = '2021-04-01T12:47:29.000+02:00'
+    expect(dayjs(firstInput, format).isValid()).toBe(true)
+    expect(dayjs(firstInput, format, true).isValid()).toBe(true)
+
+    const secondInput = '2021-03-01T12:47:29.000+02:00'
+    expect(dayjs(secondInput, format).isValid()).toBe(true)
+    expect(dayjs(secondInput, format, true).isValid()).toBe(true)
+
+    const thirdInput = '2021-03-01T12:47:29.000'
+    expect(dayjs(thirdInput, format).isValid()).toBe(false)
+    expect(dayjs(thirdInput, format, true).isValid()).toBe(false)
+  })
+  it('with timezone (compact format) and with milliseconds', () => {
+    const format = 'YYYY-MM-DDTHH:mm:ss.SSSZZ'
+
+    const firstInput = '2021-04-01T12:47:29.000+0200'
+    expect(dayjs(firstInput, format).isValid()).toBe(true)
+    expect(dayjs(firstInput, format, true).isValid()).toBe(true)
+
+    const secondInput = '2021-03-01T12:47:29.000+0200'
+    expect(dayjs(secondInput, format).isValid()).toBe(true)
+    expect(dayjs(secondInput, format, true).isValid()).toBe(true)
+
+    const thirdInput = '2021-03-01T12:47:29.000'
+    expect(dayjs(thirdInput, format).isValid()).toBe(false)
+    expect(dayjs(thirdInput, format, true).isValid()).toBe(false)
+  })
+  it('without timezone and with milliseconds', () => {
+    const format = 'YYYY-MM-DDTHH:mm:ss.SSS'
+
+    const firstInput = '2021-04-01T12:47:29.000'
+    expect(dayjs(firstInput, format).isValid()).toBe(true)
+    expect(dayjs(firstInput, format, true).isValid()).toBe(true)
+
+    const secondInput = '2021-03-01T12:47:29.000'
+    expect(dayjs(secondInput, format).isValid()).toBe(true)
+    expect(dayjs(secondInput, format, true).isValid()).toBe(true)
+
+    const thirdInput = '2021-03-01T12:47:29.000+0200'
+    expect(dayjs(thirdInput, format).isValid()).toBe(true)
+    expect(dayjs(thirdInput, format, true).isValid()).toBe(false)
+  })
 })
 
 describe('Array format support', () => {

@@ -191,14 +191,24 @@ const parseFormattedInput = (input, format, utc) => {
     const s = seconds || 0
     const ms = milliseconds || 0
     if (zone) {
-      return new Date(Date.UTC(y, M, d, h, m, s, ms + (zone.offset * 60 * 1000)))
+      const parsedOffsetMilliseconds = zone.offset * 60 * 1000
+      return {
+        parsedOffsetMilliseconds,
+        parsedDate: new Date(Date.UTC(y, M, d, h, m, s, ms + parsedOffsetMilliseconds))
+      }
     }
     if (utc) {
-      return new Date(Date.UTC(y, M, d, h, m, s, ms))
+      return {
+        parsedDate: new Date(Date.UTC(y, M, d, h, m, s, ms))
+      }
     }
-    return new Date(y, M, d, h, m, s, ms)
+    return {
+      parsedDate: new Date(y, M, d, h, m, s, ms)
+    }
   } catch (e) {
-    return new Date('') // Invalid Date
+    return {
+      parsedDate: new Date('') // Invalid Date
+    }
   }
 }
 
@@ -228,11 +238,18 @@ export default (o, C, d) => {
       if (!isStrictWithoutLocale && pl) {
         locale = d.Ls[pl]
       }
-      this.$d = parseFormattedInput(date, format, utc)
+      const { parsedDate, parsedOffsetMilliseconds } = parseFormattedInput(date, format, utc)
+      this.$d = parsedDate
       this.init()
       if (pl && pl !== true) this.$L = this.locale(pl).$L
-      if (isStrict && date !== this.format(format)) {
-        this.$d = new Date('')
+      const currentOffset = this.utcOffset()
+      if (isStrict) {
+        if (
+          (parsedOffsetMilliseconds !== undefined && date.replace(/[+-]\d\d:?\d\d$/, '') !== this.subtract(currentOffset, 'minute').subtract(parsedOffsetMilliseconds, 'millisecond').format(format.replace(/(Z|ZZ)$/, '')))
+          || (parsedOffsetMilliseconds === undefined && date !== this.format(format))
+        ) {
+          this.$d = new Date('')
+        }
       }
       // reset global locale to make parallel unit test
       locale = {}
