@@ -126,6 +126,21 @@ describe('Humanize', () => {
   })
 })
 
+describe('Pretty', () => {
+  it('Prettify', () => {
+    expect(dayjs.duration(1, 'minutes').pretty()).toBe('1m')
+    expect(dayjs.duration(133700).pretty()).toBe('2m 13s 700ms')
+    expect(dayjs.duration(2, 'minutes').pretty({ verbose: true })).toBe('2 minutes')
+    expect(dayjs.duration(1335669000).pretty({ verbose: true })).toBe('15 days 11 hours 1 minute 9 seconds')
+  })
+
+  it('Global Locale', () => {
+    dayjs.locale('es')
+    expect(dayjs.duration(133700).pretty({ verbose: true })).toBe('2 minutos 13 segundos 700 milisegundos ')
+    dayjs.locale('en')
+  })
+})
+
 describe('Clone', () => {
   it('Locale clone', () => {
     const d = dayjs.duration(1, 'minutes').locale('fr')

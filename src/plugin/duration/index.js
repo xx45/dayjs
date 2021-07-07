@@ -235,6 +235,27 @@ class Duration {
       .fromNow(!withSuffix)
   }
 
+  pretty(o) {
+    const options = { verbose: false, ...o }
+    const p = (n, s) => (n > 1 ? `${s}s` : s)
+    let chain = [
+      [this.$d.years, 'year', 'y'],
+      [this.$d.months, 'month', 'm'],
+      [this.$d.days, 'day', 'd'],
+      [this.$d.hours, 'hour', 'h'],
+      [this.$d.minutes, 'minute', 'm'],
+      [this.$d.seconds, 'second', 's'],
+      [this.$d.milliseconds, 'millisecond', 'ms']
+    ]
+    chain = chain.filter(([t]) => !!t).map(([t, n, s]) => {
+      if (options.verbose) {
+        return `${t} ${p(t, n)}`
+      }
+      return `${t}${s}`
+    })
+    return chain.join(' ')
+  }
+
   milliseconds() { return this.get('milliseconds') }
   asMilliseconds() { return this.as('milliseconds') }
   seconds() { return this.get('seconds') }
