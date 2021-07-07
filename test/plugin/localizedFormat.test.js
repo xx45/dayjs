@@ -96,6 +96,16 @@ it('Uses the localized lowercase formats if defined', () => {
   ['l', 'll', 'lll', 'llll'].forEach(option => expect(znDate.format(option)).toBe(znDate.format(znCn.formats[option])))
 })
 
+it('Uses fallback to xx if xx-yy not available', () => {
+  expect(dayjs('2019-02-01').locale('en-yy').format('MMMM'))
+    .toBe('February')
+})
+
+it('Uses xx-yy if xx-YY is provided', () => {
+  expect(dayjs('2019-02-01').locale('es-US').format('MMMM'))
+    .toBe('febrero')
+})
+
 it('Uses the localized uppercase formats as a base for lowercase formats, if not defined', () => {
   const date = new Date()
   const spanishDate = dayjs(date, { locale: es });
