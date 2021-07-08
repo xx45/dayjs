@@ -19,7 +19,7 @@ const locale = {
     LLLL: 'dddd, D MMMM YYYY HH:mm'
   },
   relativeTime: {
-    future: 'در %s',
+    future: '%s آینده',
     past: '%s پیش',
     s: 'چند ثانیه',
     m: 'یک دقیقه',
