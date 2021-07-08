@@ -43,7 +43,9 @@ const prettyUnit = (u) => {
   return special[u] || String(u || '').toLowerCase().replace(/s$/, '')
 }
 
-const isUndefined = s => s === undefined
+const isNil = val => {
+  return (typeof === 'string' && !Boolean(val.length) || val === undefined || val === null;
+}
 
 export default {
   s: padStart,
@@ -51,5 +53,5 @@ export default {
   m: monthDiff,
   a: absFloor,
   p: prettyUnit,
-  u: isUndefined
+  u: isNil
 }
