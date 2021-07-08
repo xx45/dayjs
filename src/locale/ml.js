@@ -10,12 +10,12 @@ const locale = {
   weekdaysMin: 'ഞാ_തി_ചൊ_ബു_വ്യാ_വെ_ശ'.split('_'),
   ordinal: n => n,
   formats: {
-    LT: 'A h:mm -നു',
-    LTS: 'A h:mm:ss -നു',
+    LT: 'h:mm A -നു',
+    LTS: 'h:mm:ss A -നു',
     L: 'DD/MM/YYYY',
     LL: 'D MMMM YYYY',
-    LLL: 'D MMMM YYYY, A h:mm -നു',
-    LLLL: 'dddd, D MMMM YYYY, A h:mm -നു'
+    LLL: 'D MMMM YYYY, h:mm A -നു',
+    LLLL: 'dddd, D MMMM YYYY, h:mm A -നു'
   },
   relativeTime: {
     future: '%s കഴിഞ്ഞ്',
