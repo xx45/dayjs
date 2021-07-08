@@ -275,7 +275,7 @@ class Dayjs {
 
     const matches = {
       YY: String(this.$y).slice(-2),
-      YYYY: this.$y,
+      YYYY: Utils.s(this.$y, 4, '0'),
       M: $M + 1,
       MM: Utils.s($M + 1, 2, '0'),
       MMM: getShort(locale.monthsShort, $M, months, 3),
