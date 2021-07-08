@@ -314,6 +314,13 @@ describe('Strict mode', () => {
 })
 
 describe('Array format support', () => {
+  it('does not modify input array', () => {
+    const input = '2012-05-28'
+    const formats = ['YYYY', 'YYYY-MM-DD']
+    dayjs(input, formats)
+    expect(formats.date).toBe(undefined)
+    expect(formats.args).toBe(undefined)
+  })
   it('second ok', () => {
     const input = '2012-05-28'
     const format = ['YYYY', 'YYYY-MM-DD']

@@ -28,12 +28,16 @@ const parseLocale = (preset, object, isLocal) => {
   return l || (!isLocal && L)
 }
 
+function objClone(obj) {
+  return obj instanceof Array ? [...obj] : { ...obj }
+}
+
 const dayjs = function (date, c) {
   if (isDayjs(date)) {
     return date.clone()
   }
   // eslint-disable-next-line no-nested-ternary
-  const cfg = typeof c === 'object' ? c : {}
+  const cfg = typeof c === 'object' ? objClone(c) : {}
   cfg.date = date
   cfg.args = arguments// eslint-disable-line prefer-rest-params
   return new Dayjs(cfg) // eslint-disable-line no-use-before-define
