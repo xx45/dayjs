@@ -19,7 +19,7 @@ const locale = {
   },
   relativeTime: {
     future: 'peste %s',
-    past: 'acum %s',
+    past: 'în urmă cu %s',
     s: 'câteva secunde',
     m: 'un minut',
     mm: '%d minute',
