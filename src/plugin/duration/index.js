@@ -33,28 +33,25 @@ const wrapper = (input, instance, unit) =>
 
 const prettyUnit = unit => `${$u.p(unit)}s`
 const isNegative = number => number < 0
+const isDateUnit = (unit) => {
+  switch (prettyUnit(unit)) {
+    case 'years':
+    case 'months':
+    case 'weeks':
+    case 'days':
+      return true
+    default:
+      return false
+  }
+}
 const roundNumber = number =>
   (isNegative(number) ? Math.ceil(number) : Math.floor(number))
 const absolute = number => Math.abs(number)
-const getNumberUnitFormat = (number, unit) => {
-  if (!number) {
-    return {
-      negative: false,
-      format: ''
-    }
-  }
-
-  if (isNegative(number)) {
-    return {
-      negative: true,
-      format: `${absolute(number)}${unit}`
-    }
-  }
-
-  return {
-    negative: false,
-    format: `${number}${unit}`
-  }
+const xor = (a, b) => (a && !b) || (!a && b)
+const getNumberUnitFormat = (number, unit, negativeMode) => {
+  if (!number) return ''
+  if (xor(isNegative(number), negativeMode)) return `-${absolute(number)}${unit}`
+  return `${absolute(number)}${unit}`
 }
 
 class Duration {
@@ -66,6 +63,9 @@ class Duration {
       this.parseFromMilliseconds()
     }
     if (unit) {
+      if (isDateUnit(unit)) {
+        return wrapper({ [unit]: input }, this)
+      }
       return wrapper(input * unitToMS[prettyUnit(unit)], this)
     }
     if (typeof input === 'number') {
@@ -74,8 +74,8 @@ class Duration {
       return this
     }
     if (typeof input === 'object') {
-      Object.keys(input).forEach((k) => {
-        this.$d[prettyUnit(k)] = input[k]
+      Object.keys(input).forEach((u) => {
+        this.$d[prettyUnit(u)] = input[u]
       })
       this.calMilliseconds()
       return this
@@ -83,8 +83,9 @@ class Duration {
     if (typeof input === 'string') {
       const d = input.match(durationRegex)
       if (d) {
+        const negativeMode = d[1] === '-'
         const properties = d.slice(2)
-        const numberD = properties.map(value => Number(value));
+        const numberD = properties.map(value => (!negativeMode ? Number(value) : -Number(value)));
         [
           this.$d.years,
           this.$d.months,
@@ -94,6 +95,7 @@ class Duration {
           this.$d.minutes,
           this.$d.seconds
         ] = numberD
+        this.deleteNanOrZeroUnits()
         this.calMilliseconds()
         return this
       }
@@ -122,40 +124,60 @@ class Duration {
     this.$d.seconds = roundNumber($ms / MILLISECONDS_A_SECOND)
     $ms %= MILLISECONDS_A_SECOND
     this.$d.milliseconds = $ms
+    this.deleteNanOrZeroUnits()
+  }
+
+  deleteNanOrZeroUnits() {
+    Object.keys(this.$d).forEach((unit) => {
+      if (Number.isNaN(this.$d[unit]) || this.$d[unit] === 0) {
+        delete this.$d[unit]
+      }
+    })
   }
 
   toISOString() {
-    const Y = getNumberUnitFormat(this.$d.years, 'Y')
-    const M = getNumberUnitFormat(this.$d.months, 'M')
+    let negativeMode = false
+    if (this.$d.years !== undefined) {
+      negativeMode = isNegative(this.$d.years)
+    } else if (this.$d.months !== undefined) {
+      negativeMode = isNegative(this.$d.months)
+    } else if (this.$d.weeks !== undefined) {
+      negativeMode = isNegative(this.$d.weeks)
+    } else if (this.$d.days !== undefined) {
+      negativeMode = isNegative(this.$d.days)
+    } else if (this.$d.hours !== undefined) {
+      negativeMode = isNegative(this.$d.hours)
+    } else if (this.$d.minutes !== undefined) {
+      negativeMode = isNegative(this.$d.minutes)
+    } else if (this.$d.seconds !== undefined) {
+      negativeMode = isNegative(this.$d.seconds)
+    } else if (this.$d.milliseconds !== undefined) {
+      negativeMode = isNegative(this.$d.milliseconds)
+    }
+
+    const Y = getNumberUnitFormat(this.$d.years, 'Y', negativeMode)
+    const M = getNumberUnitFormat(this.$d.months, 'M', negativeMode)
 
     let days = +this.$d.days || 0
     if (this.$d.weeks) {
       days += this.$d.weeks * 7
     }
 
-    const D = getNumberUnitFormat(days, 'D')
-    const H = getNumberUnitFormat(this.$d.hours, 'H')
-    const m = getNumberUnitFormat(this.$d.minutes, 'M')
+    const D = getNumberUnitFormat(days, 'D', negativeMode)
+    const H = getNumberUnitFormat(this.$d.hours, 'H', negativeMode)
+    const m = getNumberUnitFormat(this.$d.minutes, 'M', negativeMode)
 
     let seconds = this.$d.seconds || 0
     if (this.$d.milliseconds) {
       seconds += this.$d.milliseconds / 1000
     }
 
-    const S = getNumberUnitFormat(seconds, 'S')
+    const S = getNumberUnitFormat(seconds, 'S', negativeMode)
 
-    const negativeMode =
-      Y.negative ||
-      M.negative ||
-      D.negative ||
-      H.negative ||
-      m.negative ||
-      S.negative
-
-    const T = H.format || m.format || S.format ? 'T' : ''
+    const T = H || m || S ? 'T' : ''
     const P = negativeMode ? '-' : ''
 
-    const result = `${P}P${Y.format}${M.format}${D.format}${T}${H.format}${m.format}${S.format}`
+    const result = `${P}P${Y}${M}${D}${T}${H}${m}${S}`
     return result === 'P' || result === '-P' ? 'P0D' : result
   }
 
@@ -198,20 +220,22 @@ class Duration {
     } else {
       base = this.$d[pUnit]
     }
-    return base === 0 ? 0 : base // a === 0 will be true on both 0 and -0
+    return base === 0 || base === undefined ? 0 : base // a === 0 will be true on both 0 and -0
   }
 
   add(input, unit, isSubtract) {
     let another
-    if (unit) {
-      another = input * unitToMS[prettyUnit(unit)]
-    } else if (isDuration(input)) {
-      another = input.$ms
+    if (isDuration(input)) {
+      another = input
     } else {
-      another = wrapper(input, this).$ms
+      another = wrapper(input, this, unit)
     }
 
-    return wrapper(this.$ms + (another * (isSubtract ? -1 : 1)), this)
+    const d = {}
+    Object.keys(unitToMS).forEach((u) => {
+      d[u] = (this.$d[u] || 0) + ((another.$d[u] || 0) * (isSubtract ? -1 : 1))
+    })
+    return wrapper(d, this)
   }
 
   subtract(input, unit) {
@@ -265,11 +289,23 @@ export default (option, Dayjs, dayjs) => {
   const oldAdd = Dayjs.prototype.add
   const oldSubtract = Dayjs.prototype.subtract
   Dayjs.prototype.add = function (value, unit) {
-    if (isDuration(value)) value = value.asMilliseconds()
+    if (isDuration(value)) {
+      let d = this
+      Object.keys(value.$d).forEach((durationUnit) => {
+        d = d.add(value.$d[durationUnit], durationUnit)
+      })
+      return d
+    }
     return oldAdd.bind(this)(value, unit)
   }
   Dayjs.prototype.subtract = function (value, unit) {
-    if (isDuration(value)) value = value.asMilliseconds()
+    if (isDuration(value)) {
+      let d = this
+      Object.keys(value.$d).forEach((durationUnit) => {
+        d = d.subtract(value.$d[durationUnit], durationUnit)
+      })
+      return d
+    }
     return oldSubtract.bind(this)(value, unit)
   }
 }

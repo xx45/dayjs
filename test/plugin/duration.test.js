@@ -67,14 +67,45 @@ describe('Creating', () => {
       ms: -1
     }).toISOString()).toBe('-PT0.001S')
   })
+  it('object with weeks', () => {
+    expect(dayjs.duration({ weeks: 5 }).toISOString()).toBe('P35D')
+  })
+  it('object with days', () => {
+    expect(dayjs.duration({ days: -4 }).toISOString()).toBe('-P4D')
+  })
+  it('object with units of mixed positive and negative', () => {
+    expect(dayjs.duration({ months: 6, days: 4 }).toISOString()).toBe('P6M4D')
+    expect(dayjs.duration({ months: -6, days: 4 }).toISOString()).toBe('-P6M-4D')
+    expect(dayjs.duration({ months: 6, days: -4 }).toISOString()).toBe('P6M-4D')
+    expect(dayjs.duration({ months: -6, days: -4 }).toISOString()).toBe('-P6M4D')
+
+    expect(dayjs.duration({ hours: 3, minutes: 2 }).toISOString()).toBe('PT3H2M')
+    expect(dayjs.duration({ hours: -3, minutes: 2 }).toISOString()).toBe('-PT3H-2M')
+    expect(dayjs.duration({ hours: 3, minutes: -2 }).toISOString()).toBe('PT3H-2M')
+    expect(dayjs.duration({ hours: -3, minutes: -2 }).toISOString()).toBe('-PT3H2M')
+  })
 })
 
 describe('Parse ISO string', () => {
   it('Full ISO string', () => {
     expect(dayjs.duration('P7Y6M4DT3H2M1S').toISOString()).toBe('P7Y6M4DT3H2M1S')
   })
+  it('Negative Full ISO string', () => {
+    expect(dayjs.duration('-P7Y6M4DT3H2M1S').toISOString()).toBe('-P7Y6M4DT3H2M1S')
+  })
   it('Part ISO string', () => {
     expect(dayjs.duration('PT2777H46M40S').toISOString()).toBe('PT2777H46M40S')
+  })
+  it('Part ISO string mixed positive and negative', () => {
+    expect(dayjs.duration('P6M4D').toISOString()).toBe('P6M4D')
+    expect(dayjs.duration('-P6M-4D').toISOString()).toBe('-P6M-4D')
+    expect(dayjs.duration('P6M-4D').toISOString()).toBe('P6M-4D')
+    expect(dayjs.duration('-P6M4D').toISOString()).toBe('-P6M4D')
+
+    expect(dayjs.duration('PT3H2M').toISOString()).toBe('PT3H2M')
+    expect(dayjs.duration('-PT3H-2M').toISOString()).toBe('-PT3H-2M')
+    expect(dayjs.duration('PT3H-2M').toISOString()).toBe('PT3H-2M')
+    expect(dayjs.duration('-PT3H2M').toISOString()).toBe('-PT3H2M')
   })
   it('ISO string with week', () => {
     const d = dayjs.duration('P2M3W4D')
@@ -84,6 +115,33 @@ describe('Parse ISO string', () => {
   })
   it('Invalid ISO string', () => {
     expect(dayjs.duration('Invalid').toISOString()).toBe('P0D')
+  })
+})
+
+describe('Internal representation', () => {
+  it('milliseconds', () => {
+    expect(dayjs.duration(1, 'ms')).toEqual(dayjs.duration({ milliseconds: 1 }))
+    expect(dayjs.duration(100)).toEqual(dayjs.duration({ milliseconds: 100 }))
+    expect(dayjs.duration(1000)).toEqual(dayjs.duration({ seconds: 1 }))
+  })
+  it('two argument will bubble up to the next', () => {
+    expect(dayjs.duration(59, 'seconds')).toEqual(dayjs.duration({ seconds: 59 }))
+    expect(dayjs.duration(60, 'seconds')).toEqual(dayjs.duration({ minutes: 1 }))
+    expect(dayjs.duration(13213, 'seconds')).toEqual(dayjs.duration({ hours: 3, minutes: 40, seconds: 13 }))
+  })
+  it('two argument will bubble up to the next (negative number)', () => {
+    expect(dayjs.duration(-59, 'seconds')).toEqual(dayjs.duration({ seconds: -59 }))
+    expect(dayjs.duration(-60, 'seconds')).toEqual(dayjs.duration({ minutes: -1 }))
+    expect(dayjs.duration(-13213, 'seconds')).toEqual(dayjs.duration({ hours: -3, minutes: -40, seconds: -13 }))
+  })
+  it('ISO string', () => {
+    expect(dayjs.duration('PT20.345S')).toEqual(dayjs.duration({ seconds: 20.345 }))
+    expect(dayjs.duration('PT15M')).toEqual(dayjs.duration({ minutes: 15 }))
+    expect(dayjs.duration('PT10H')).toEqual(dayjs.duration({ hours: 10 }))
+    expect(dayjs.duration('P4DT3H2M')).toEqual(dayjs.duration({ days: 4, hours: 3, minutes: 2 }))
+    expect(dayjs.duration('PT-3H2M')).toEqual(dayjs.duration({ hours: -3, minutes: 2 }))
+    expect(dayjs.duration('-PT3H2M')).toEqual(dayjs.duration({ hours: -3, minutes: -2 }))
+    expect(dayjs.duration('-PT-3H+2M')).toEqual(dayjs.duration({ hours: 3, minutes: -2 }))
   })
 })
 
@@ -165,29 +223,68 @@ describe('Milliseconds', () => {
 })
 
 describe('Add', () => {
-  const a = dayjs.duration(1, 'days')
-  const b = dayjs.duration(2, 'days')
-  expect(a.add(b).days()).toBe(3)
-  expect(a.add(1, 'days').days()).toBe(2)
-  expect(a.add({ days: 5 }).days()).toBe(6)
+  it('Add days', () => {
+    const a = dayjs.duration(1, 'days')
+    const b = dayjs.duration(2, 'days')
+    expect(a.add(b).days()).toBe(3)
+    expect(a.add(1, 'days').days()).toBe(2)
+    expect(a.add({ days: 5 }).days()).toBe(6)
+  })
+  it('Add days results over 1 month', () => {
+    const a = dayjs.duration(15, 'days')
+    const b = dayjs.duration(20, 'days')
+    expect(a.add(b).days()).toBe(35)
+    expect(a.add(b).toISOString()).toBe('P35D')
+  })
+  it('Add hours results over 1 day', () => {
+    const a = dayjs.duration(15, 'hours')
+    const b = dayjs.duration(20, 'hours')
+    expect(a.add(b).hours()).toBe(35)
+    expect(a.add(b).toISOString()).toBe('PT35H')
+  })
 })
 
-test('Add duration', () => {
-  const a = dayjs('2020-10-01')
-  const days = dayjs.duration(2, 'days')
-  expect(a.add(days).format('YYYY-MM-DD')).toBe('2020-10-03')
+describe('Add duration to dayjs', () => {
+  it('Add months', () => {
+    const a = dayjs('2020-10-01')
+    expect(a.add(dayjs.duration(2, 'months')).format('YYYY-MM-DD')).toBe('2020-12-01')
+    expect(a.add(dayjs.duration(3, 'months')).format('YYYY-MM-DD')).toBe('2021-01-01')
+  })
+  it('Add days', () => {
+    const a = dayjs('2020-10-01')
+    expect(a.add(dayjs.duration(2, 'days')).format('YYYY-MM-DD')).toBe('2020-10-03')
+    expect(a.add(dayjs.duration(29, 'days')).format('YYYY-MM-DD')).toBe('2020-10-30')
+    expect(a.add(dayjs.duration(30, 'days')).format('YYYY-MM-DD')).toBe('2020-10-31')
+    expect(a.add(dayjs.duration(31, 'days')).format('YYYY-MM-DD')).toBe('2020-11-01')
+  })
+  it('Add hours', () => {
+    const a = dayjs('2020-10-01')
+    expect(a.add(dayjs.duration(24, 'hours')).format('YYYY-MM-DD')).toBe('2020-10-02')
+  })
 })
 
 describe('Subtract', () => {
-  const a = dayjs.duration(3, 'days')
-  const b = dayjs.duration(2, 'days')
-  expect(a.subtract(b).days()).toBe(1)
+  it('Substract days', () => {
+    const a = dayjs.duration(3, 'days')
+    const b = dayjs.duration(2, 'days')
+    expect(a.subtract(b).days()).toBe(1)
+  })
 })
 
-test('Subtract duration', () => {
-  const a = dayjs('2020-10-20')
-  const days = dayjs.duration(2, 'days')
-  expect(a.subtract(days).format('YYYY-MM-DD')).toBe('2020-10-18')
+describe('Subtract duration from dayjs', () => {
+  it('Subtract months', () => {
+    const a = dayjs('2020-10-01')
+    expect(a.subtract(dayjs.duration(2, 'months')).format('YYYY-MM-DD')).toBe('2020-08-01')
+    expect(a.subtract(dayjs.duration(10, 'months')).format('YYYY-MM-DD')).toBe('2019-12-01')
+  })
+  it('Subtract days', () => {
+    const a = dayjs('2020-10-01')
+    expect(a.subtract(dayjs.duration(2, 'days')).format('YYYY-MM-DD')).toBe('2020-09-29')
+  })
+  it('Subtract hours', () => {
+    const a = dayjs('2020-10-01')
+    expect(a.subtract(dayjs.duration(24, 'hours')).format('YYYY-MM-DD')).toBe('2020-09-30')
+  })
 })
 
 describe('Seconds', () => {
