@@ -272,3 +272,15 @@ describe('Format', () => {
       .toBe('2/02.0002TEST9:09:6:06:8:08:5:05:1:01:010')
   })
 })
+
+it('GraphQL typename ignored', () => {
+  expect(dayjs.duration({
+    seconds: 0,
+    minutes: 10,
+    hours: 1,
+    days: 0,
+    months: 0,
+    years: 0,
+    __typename: 'Interval'
+  }).asMinutes()).toBe(70)
+})
