@@ -173,6 +173,20 @@ class Dayjs {
         return instanceFactorySet(`${utcPad}Seconds`, 2)
       case C.S:
         return instanceFactorySet(`${utcPad}Milliseconds`, 3)
+      case 'yearisoweek':
+        if (isStartOf) {
+          const YD = instanceFactory(1, 0).$W
+          let diff
+          if (YD === 1) {
+            diff = 0
+          } else if (YD < 5) {
+            diff = (YD - 1) * -1
+          } else {
+            diff = 8 - YD
+          }
+          return instanceFactory(1, 0).add(diff, 'day')
+        }
+        return instanceFactory(31, 11)
       default:
         return this.clone()
     }

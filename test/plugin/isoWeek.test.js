@@ -127,6 +127,13 @@ it('isoWeek of year', () => {
   expect(dayjs('20210110').isoWeek()).toBe(1)
 })
 
+it('startOf yearisoweek', () => {
+  Array.from(new Array(200), (v, k) => (k + 1900).toString()).forEach((y) => {
+    expect(dayjs(y, 'YYYY').startOf('yearisoweek').isoWeek()).toBe(1)
+    expect(dayjs(y, 'YYYY').startOf('yearisoweek').isoWeekday()).toBe(1)
+  })
+})
+
 
 it('utc mode', () => {
   // Wednesday, 1 January 2020 00:00:00 UTC
