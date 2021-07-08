@@ -1,13 +1,9 @@
 import { FORMAT_DEFAULT } from '../../constant'
 
-export default (o, c, d) => { // locale needed later
+export default (o, c) => { // locale needed later
   const proto = c.prototype
   const oldFormat = proto.format
-  d.en.ordinal = (number) => {
-    const s = ['th', 'st', 'nd', 'rd']
-    const v = number % 100
-    return `[${number}${(s[(v - 20) % 10] || s[v] || s[0])}]`
-  }
+
   // extend en locale here
   proto.format = function (formatStr) {
     const locale = this.$locale()
