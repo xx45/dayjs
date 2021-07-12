@@ -17,7 +17,7 @@ const getDateTimeFormat = (timezone, options = {}) => {
   const key = `${timezone}|${timeZoneName}`
   let dtf = dtfCache[key]
   if (!dtf) {
-    dtf = new Intl.DateTimeFormat('en-US', {
+    dtf = new Intl.DateTimeFormat(undefined, {
       hour12: false,
       timeZone: timezone,
       year: 'numeric',
