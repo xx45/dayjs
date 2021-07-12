@@ -109,7 +109,9 @@ class Dayjs {
 
   isSame(that, units) {
     const other = dayjs(that)
-    return this.startOf(units) <= other && other <= this.endOf(units)
+    return units !== undefined ?
+      this.startOf(units) <= other && other <= this.endOf(units) :
+      this.valueOf() === other.valueOf()
   }
 
   isAfter(that, units) {
