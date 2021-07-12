@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "paths": {
+      "dayjs/*": [
+        "../*"
+      ]
+    },
+    "module": "CommonJS",
+    "target": "ES6"
+  }
+}

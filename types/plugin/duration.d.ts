@@ -1,5 +1,5 @@
 import { PluginFunc } from 'dayjs'
-import { OpUnitType, UnitTypeLongPlural } from "../index";
+import { OpUnitType, UnitTypeLongPlural } from 'dayjs';
 
 declare const plugin: PluginFunc
 export as namespace plugin;

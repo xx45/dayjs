@@ -16,7 +16,7 @@ const localeTypePath = path.join(process.env.PWD, 'esm/locale', `index${typeFile
     readLocaleDir.forEach(async (l) => {
       const filePath = path.join(localeDir, l)
       const readFile = await promisify(fs.readFile)(filePath, 'utf8')
-      const result = readFile.replace("'dayjs'", "'../index'")
+      const result = readFile.replace(/'dayjs'/g, "'dayjs/esm'")
       await promisify(fs.writeFile)(filePath, result, 'utf8')
     })
 

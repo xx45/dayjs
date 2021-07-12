@@ -9,7 +9,7 @@
     "test-tz": "date && jest test/timezone.test --coverage=false",
     "lint": "./node_modules/.bin/eslint src/* test/* build/*",
     "prettier": "prettier --write \"docs/**/*.md\"",
-    "babel": "cross-env BABEL_ENV=build babel src --out-dir esm --copy-files && node build/esm",
+    "babel": "cross-env BABEL_ENV=build babel src --out-dir esm --copy-files && node build/esm && tsc -b ./type-test/tsconfig.build.json",
     "build": "cross-env BABEL_ENV=build node build && npm run size",
     "sauce": "npx karma start karma.sauce.conf.js",
     "test:sauce": "npm run sauce -- 0 && npm run sauce -- 1 && npm run sauce -- 2  && npm run sauce -- 3",
@@ -66,10 +66,10 @@
     "url": "https://github.com/iamkun/dayjs.git"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.44",
-    "@babel/core": "^7.0.0-beta.44",
-    "@babel/node": "^7.0.0-beta.44",
-    "@babel/preset-env": "^7.0.0-beta.44",
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/node": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^22.4.3",
     "babel-plugin-external-helpers": "^6.22.0",
@@ -94,6 +94,6 @@
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-terser": "^7.0.2",
     "size-limit": "^0.18.0",
-    "typescript": "^2.8.3"
+    "typescript": "^4.3.4"
   }
 }

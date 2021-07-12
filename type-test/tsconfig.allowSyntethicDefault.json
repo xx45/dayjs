@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "files": [
+    "./esModuleInterop.ts"
+  ]
+}
