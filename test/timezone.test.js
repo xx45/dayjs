@@ -57,12 +57,20 @@ it('UTC add day in DST', () => {
 })
 
 it('UTC and utcOffset', () => {
-  const test1 = 1331449199000 // 2012/3/11 14:59:59
-  expect(moment(test1).utcOffset(-300).format())
-    .toBe(dayjs(test1).utcOffset(-300).format())
+  const test1 = 1331449199000 // 2012/3/11 06:59:59 GMT+0000
+  expect(dayjs(test1).utcOffset(-300).format())
+    .toBe(moment(test1).utcOffset(-300).format())
   const test2 = '2000-01-01T06:31:00Z'
-  expect(moment.utc(test2).utcOffset(-60).format())
-    .toBe(dayjs.utc(test2).utcOffset(-60).format())
+  expect(dayjs.utc(test2).utcOffset(-60).format())
+    .toBe(moment.utc(test2).utcOffset(-60).format())
+
+  // across DST, copied from utc.test.js#get utc offset with a number value
+  const time = '2021-02-28 19:40:10'
+  const hoursOffset = -8
+  const daysJS = dayjs(time).utc().utcOffset(hoursOffset * 60, true)
+  const momentJS = moment(time).utc(true).utcOffset(hoursOffset, true)
+
+  expect(daysJS.toISOString()).toEqual(momentJS.toISOString())
 })
 
 it('UTC diff in DST', () => {
