@@ -114,17 +114,6 @@ export default (o, c, d) => {
     return result && result.value
   }
 
-  const oldStartOf = proto.startOf
-  proto.startOf = function (units, startOf) {
-    if (!this.$x || !this.$x.$timezone) {
-      return oldStartOf.call(this, units, startOf)
-    }
-
-    const withoutTz = d(this.format('YYYY-MM-DD HH:mm:ss:SSS'))
-    const startOfWithoutTz = oldStartOf.call(withoutTz, units, startOf)
-    return startOfWithoutTz.tz(this.$x.$timezone, true)
-  }
-
   d.tz = function (input, arg1, arg2) {
     const parseFormat = arg2 && arg1
     const timezone = arg2 || arg1 || defaultTimezone
